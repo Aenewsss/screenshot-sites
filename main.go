@@ -39,9 +39,8 @@ func main() {
 	}
 
 	// Navegar para o site desejado
-	url := "https://signmeupcustoms.com/"
-	// url := "https://branddi.com/"
-	// url := "https://aenamartinelli.com.br"
+	// url := "https://signmeupcustoms.com/"
+	url := "https://aenamartinelli.com.br"
 	// url := "https://www.apple.com/br/shop/buy-iphone"
 	if _, err := page.Goto(url, playwright.PageGotoOptions{WaitUntil: playwright.WaitUntilStateNetworkidle}); err != nil {
 		log.Fatalf("Erro ao navegar para o site: %v", err)
@@ -109,6 +108,13 @@ func scrollToBottom(page playwright.Page) error {
 		if (currentDistance == previousDistance) && (previousDistance != 0 || !firstStep) {
 			// Se a altura não mudou, chegamos ao final da página e inserimos um timeout antes do print
 			time.Sleep(1 * time.Second)
+			page.Evaluate(`
+				const arrFiltered = Array.from(document.querySelectorAll('*')).filter(el => el.style.opacity != '1' && el.style.opacity != '');
+				arrFiltered.forEach(el => {
+					document.getElementsByClassName(el.className)[0].style.opacity = 1;
+                	document.getElementsByClassName(el.className)[0].style.top = 'unset'
+				})
+			`)
 			break
 		}
 
@@ -121,7 +127,7 @@ func scrollToBottom(page playwright.Page) error {
 		previousDistance = currentDistance
 
 		firstStep = false
-		
+
 		// Aguardar para carregar novos conteúdos
 		time.Sleep(delayBetweenScrolls)
 	}
